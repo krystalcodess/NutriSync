@@ -39,27 +39,6 @@ pipeline {
 
         stage('Deploy to Test Environment') {
             steps {
-                sshagent(['SSH_Jenkins_Key']) {
-                    // Copy files excluding 'venv'
-                    sh '''
-                        scp -o StrictHostKeyChecking=no -r /var/lib/jenkins/workspace/Automated_Pipeline/README.md \
-                        /var/lib/jenkins/workspace/Automated_Pipeline/test.txt \
-                        /var/lib/jenkins/workspace/Automated_Pipeline/text.txt \
-                        /var/lib/jenkins/workspace/Automated_Pipeline/webfiles \
-                        ubuntu@52.54.220.19:~/webfiles/
-                    '''
-
-                    // SSH into the remote server and set up virtual environment
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@52.54.220.19 <<EOF
-                            cd ~/webfiles/
-                            python3 -m venv venv
-                            source venv/bin/activate
-                            pip install -r requirements.txt
-                        EOF
-                    '''
-                }
-
                 // Deploy the Docker container to the test environment
                 sh 'docker rm -f NutriSync-Website || true'
                 sh 'docker run -d -p 8085:80 --name=NutriSync-Website nutrisync'
