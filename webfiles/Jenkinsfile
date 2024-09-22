@@ -1,70 +1,52 @@
 pipeline {
     agent any
-
+    
     stages {
-        stage('Checkout') {
-            steps {
-                // Pull the project code from the GitHub repository
-                git 'https://github.com/krystalcodess/NutriSync.git'
-            }
-        }
-
         stage('Build') {
             steps {
-                // Build the Docker image for the application
-                sh 'docker build -t nutrisync .'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                // Set up a Python virtual environment and run the tests
                 sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip install -r requirements.txt
-                    pytest
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install -r requirements.txt
                 '''
             }
         }
-
-        stage('Code Quality') {
+        
+        stage('Test') {
             steps {
-                // Run SonarQube for code quality analysis
+                sh '''
+                . venv/bin/activate
+                python -m pytest tests/
+                '''
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner'
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=SonarQube-App \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=http://34.227.21.112:9000
+                    '''
                 }
             }
         }
-
-        stage('Deploy to Test Environment') {
+        
+        stage('Deploy') {
             steps {
-                // Deploy the Docker container to the test environment
-                sh 'docker rm -f NutriSync-Website || true'
-                sh 'docker run -d -p 8085:80 --name=NutriSync-Website nutrisync'
-            }
-        }
-
-        stage('Monitoring and Alerting') {
-            steps {
-                // Placeholder for monitoring setup
-                echo 'Monitoring setup placeholder'
+                sh '''
+                scp -r * ubuntu@52.54.220.19:/home/ubuntu/webfiles/
+                ssh ubuntu@52.54.220.19 'cd /home/ubuntu/webfiles && python3 app.py &'
+                '''
             }
         }
     }
-
+    
     post {
         always {
-            // Clean up unused Docker images and containers
-            sh 'docker system prune -f'
-            echo 'Pipeline completed.'
-        }
-        success {
-            echo 'Build, test, and deployment succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed.'
+            cleanWs()
         }
     }
 }
-
