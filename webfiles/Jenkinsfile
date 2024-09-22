@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Build') {
             steps {
@@ -11,16 +11,16 @@ pipeline {
                 '''
             }
         }
-        
+
         stage('Test') {
             steps {
                 sh '''
                 . venv/bin/activate
-                python -m pytest tests/
+                pytest
                 '''
             }
         }
-        
+
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -33,77 +33,25 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                sh '''
-                # Create a tar archive of the project, excluding venv and .git
-                tar --exclude='./venv' --exclude='./.git' -czf project.tar.gz .
-                
-                # Copy the archive to the remote server
-                scp project.tar.gz ubuntu@52.54.220.19:/home/ubuntu/webfiles/
-                
-                # SSH into the remote server to deploy and start the application
-                ssh ubuntu@52.54.220.19 '
-                    set -e  # Exit immediately if a command exits with a non-zero status
-                    cd /home/ubuntu/webfiles
-                    tar -xzf project.tar.gz
-                    rm project.tar.gz
-                    
-                    # Ensure python3 and pip are available
-                    command -v python3 >/dev/null 2>&1 || { echo >&2 "Python3 is required but not installed. Aborting."; exit 1; }
-                    command -v pip3 >/dev/null 2>&1 || { echo >&2 "Pip3 is required but not installed. Aborting."; exit 1; }
-                    
-                    # Set up virtual environment
-                    python3 -m venv venv
-                    source venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                    
-                    # Stop any existing instance of the app
-                    pkill -f "python3 app.py" || true
-                    
-                    # Start the application
-                    nohup python3 app.py > app.log 2>&1 &
-                    
-                    # Wait for the app to start
-                    sleep 10
-                    
-                    # Check if the process is running
-                    if pgrep -f "python3 app.py" > /dev/null; then
-                        echo "Application process is running"
-                    else
-                        echo "Failed to start the application process"
-                        echo "Last 50 lines of app.log:"
-                        tail -n 50 app.log
-                        exit 1
-                    fi
-                    
-                    # Check if the app is responding
-                    if curl -s http://localhost:8085 > /dev/null; then
-                        echo "Application is responding to requests"
-                    else
-                        echo "Application is not responding to requests"
-                        echo "Netstat output:"
-                        netstat -tulpn | grep python3
-                        echo "Last 50 lines of app.log:"
-                        tail -n 50 app.log
-                        exit 1
-                    fi
-                    
-                    echo "Deployment successful"
-                '
-                
-                # Remove the local tar file
-                rm project.tar.gz
-                '''
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'Docker-server', 
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: '**/*',
+                                    removePrefix: '',
+                                    remoteDirectory: 'webfiles',
+                                    execCommand: 'cd ~/webfiles && python3 -m venv venv && . venv/bin/activate && pip install -r requirements.txt && python3 app.py &'
+                                )
+                            ]
+                        )
+                    ]
+                )
             }
-        }
-    }
-    
-    post {
-        always {
-            cleanWs()
         }
     }
 }
