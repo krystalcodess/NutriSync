@@ -4,18 +4,21 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Pull the project code from the GitHub repository
                 git 'https://github.com/krystalcodess/NutriSync.git'
             }
         }
 
         stage('Build') {
             steps {
+                // Build the Docker image for the application
                 sh 'docker build -t nutrisync .'
             }
         }
 
         stage('Test') {
             steps {
+                // Set up a Python virtual environment and run the tests
                 sh '''
                     python3 -m venv venv
                     . venv/bin/activate
@@ -27,6 +30,7 @@ pipeline {
 
         stage('Code Quality') {
             steps {
+                // Run SonarQube for code quality analysis
                 withSonarQubeEnv('SonarQube') {
                     sh 'sonar-scanner'
                 }
@@ -35,6 +39,7 @@ pipeline {
 
         stage('Deploy to Test Environment') {
             steps {
+                // Deploy the Docker container to the test environment
                 sh 'docker rm -f NutriSync-Website || true'
                 sh 'docker run -d -p 8085:80 --name=NutriSync-Website nutrisync'
             }
@@ -42,6 +47,7 @@ pipeline {
 
         stage('Monitoring and Alerting') {
             steps {
+                // Placeholder for monitoring setup
                 echo 'Monitoring setup placeholder'
             }
         }
@@ -49,6 +55,7 @@ pipeline {
 
     post {
         always {
+            // Clean up unused Docker images and containers
             sh 'docker system prune -f'
             echo 'Pipeline completed.'
         }
@@ -60,3 +67,4 @@ pipeline {
         }
     }
 }
+
