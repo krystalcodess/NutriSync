@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Read the CSV file
-df = pd.read_csv('/Users/d.o.npat/Desktop/NutriSync/hackathon/dummy_data.csv', parse_dates=['Date'])
+df = pd.read_csv('dummy_data.csv', parse_dates=['Date'])
+
 
 # Calculate average metrics
 avg_sleep = df['Sleep Analysis [In Bed] (hr)'].mean()
