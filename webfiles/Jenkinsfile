@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/krystalcodess/NutriSync.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'docker build -t nutrisync .'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install -r requirements.txt
+                    pytest
+                '''
+            }
+        }
+
+        stage('Code Quality') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
+
+        stage('Deploy to Test Environment') {
+            steps {
+                sh 'docker rm -f NutriSync-Website || true'
+                sh 'docker run -d -p 8085:80 --name=NutriSync-Website nutrisync'
+            }
+        }
+
+        stage('Monitoring and Alerting') {
+            steps {
+                echo 'Monitoring setup placeholder'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker system prune -f'
+            echo 'Pipeline completed.'
+        }
+        success {
+            echo 'Build, test, and deployment succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
