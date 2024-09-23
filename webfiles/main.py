@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from health import generate_report
 
 # Load the CSV file
-file_path_csv = '/Users/d.o.npat/Desktop/NutriSync/hackathon/8g. AUSNUT 2011-13 AHS Dietary Supplement Nutrient Database.csv'
+file_path_csv = '8g. AUSNUT 2011-13 AHS Dietary Supplement Nutrient Database.csv'
 data = pd.read_csv(file_path_csv, delimiter=';')
 
 # Convert numeric columns to proper format
