@@ -31,7 +31,10 @@ def register():
     return render_template("register.html")
 
 
-@app.route('/user', methods=["POST", "GET"])
+@app.route('/health', methods=['GET'])
+def health_check():
+    return "OK", 200
+
 def hello_user_page():
     if "user" in session:
         name = session["user"]
