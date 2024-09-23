@@ -696,5 +696,5 @@ def run_reminders():
     print("🔔 Reminder: Take a moment to stand up and stretch!")
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)
