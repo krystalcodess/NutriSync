@@ -4,5 +4,5 @@ services:
     image: krystalnguyen2312/nutrisync:latest
     container_name: nutrisync-container
     ports:
-      - "5000:5000"
+      - "8081:80"  # Map port 8081 on the host to port 80 inside the container
     restart: always
