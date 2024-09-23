@@ -1,0 +1,10 @@
+version: '3'
+services:
+  nutrisync:
+    image: krystalnguyen2312/nutrisync:latest
+    container_name: nutrisync-prod-container
+    ports:
+      - "80:5000"   # Expose on port 80 for production (standard HTTP)
+    environment:
+      - FLASK_ENV=production
+    restart: always
