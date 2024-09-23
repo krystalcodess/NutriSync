@@ -6,6 +6,7 @@ from PIL import Image
 import time
 from datetime import datetime, timedelta
 from health import generate_report
+import sys
 
 # Load the CSV file
 file_path_csv = '8g. AUSNUT 2011-13 AHS Dietary Supplement Nutrient Database.csv'
@@ -614,7 +615,7 @@ def print_goodbye():
 
 def main():
     print_welcome()
-    
+
     # Automatically choose option 2 and proceed with wearable data analysis
     user_choice = get_user_choice()  # This is already defaulting to '2'
 
@@ -624,9 +625,12 @@ def main():
     elif user_choice == 2:
         process_wearable_data()
         run_reminders()
-    
-    # Instead of asking the user to continue, we exit after processing
+
+    # Goodbye message and successful exit
     print_goodbye()
+
+    # Ensure the application exits successfully
+    sys.exit(0)  # Exit with status code 0 (success)
 
 
 def process_manual_entry():
