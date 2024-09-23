@@ -520,12 +520,10 @@ def print_welcome():
     """)
 
 def get_user_choice():
-    while True:
-        choice = input("\nWould you like to (1) enter symptoms manually or (2) analyze your wearable data? Enter 1 or 2: ")
-        if choice in ['1', '2']:
-            return int(choice)
-        else:
-            print("Invalid input. Please enter 1 or 2.")
+    # Instead of prompting the user, automatically default to option '2'
+    print("Defaulting to option '2' (analyze wearable data).")
+    return 2  # Automatically return '2' to proceed with wearable data analysis
+
 
 def display_tommy_analysis():
     print("Tommy's Health Analysis Report")
