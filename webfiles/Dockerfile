@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Define the command to run your Python app using main.py as the entry point
-CMD ["python", "main.py"]
+CMD ["python", "app.py"]
