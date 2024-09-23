@@ -13,3 +13,4 @@ tzdata==2024.1
 Werkzeug==3.0.4
 Pillow
 pytest
+pytest-cov
