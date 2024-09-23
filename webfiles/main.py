@@ -615,21 +615,19 @@ def print_goodbye():
 def main():
     print_welcome()
     
-    while True:
-        user_choice = get_user_choice()
+    # Automatically choose option 2 and proceed with wearable data analysis
+    user_choice = get_user_choice()  # This is already defaulting to '2'
 
-        if user_choice == 1:
-            process_manual_entry()
-            run_reminders()
-        elif user_choice == 2:
-            process_wearable_data()
-            run_reminders()
-        
-        continue_choice = input("\nWould you like to continue using NutriSync? (yes/no): ").lower()
-        if continue_choice != 'yes':
-            break
+    if user_choice == 1:
+        process_manual_entry()
+        run_reminders()
+    elif user_choice == 2:
+        process_wearable_data()
+        run_reminders()
     
+    # Instead of asking the user to continue, we exit after processing
     print_goodbye()
+
 
 def process_manual_entry():
     print("Manual symptom entry selected.")
